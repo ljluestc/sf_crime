@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>San Francisco Crime Visualization</title>
+    <!-- Load Plotly.js from CDN -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+    <h1>San Francisco Crime Visualization</h1>
+    <div id="graph"></div>
+    <script>
+        // Parse the JSON passed from Flask
+        var graphData = JSON.parse('{{ graphJSON|safe }}');
+        // Plot the graph using Plotly
+        Plotly.newPlot('graph', graphData.data, graphData.layout);
+    </script>
+</body>
+</html>
