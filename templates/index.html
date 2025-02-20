@@ -1,22 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>San Francisco Crime Visualization</title>
+    
     <!-- Load Plotly.js from CDN -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
         h1 { color: #333; }
+        .container {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+        }
+        #graph {
+            flex: 1;
+            margin-right: 20px;
+        }
+        iframe {
+            flex: 1;
+            height: 600px;
+            width: 100%;
+            border: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
     <h1>San Francisco Crime Visualization</h1>
-    <div id="graph"></div>
+    
+    <div class="container">
+        <!-- Plotly Graph -->
+        <div id="graph"></div>
+
+        <!-- Embedded Jupyter Notebook as an iframe -->
+        <iframe src="{{ url_for('static', filename='sf_crime_analysis.html') }}" title="Jupyter Notebook Visualization"></iframe>
+    </div>
+
     <script>
-        // Parse the JSON passed from Flask
         var graphData = JSON.parse('{{ graphJSON|safe }}');
-        // Plot the graph using Plotly
         Plotly.newPlot('graph', graphData.data, graphData.layout);
     </script>
 </body>
