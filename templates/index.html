@@ -55,12 +55,12 @@
     </div>
 
     <script>
-        // Bar chart data (replace with your graphJSON from Python)
+        // Bar chart data from Flask
         var graphJSON = {
             "data": [{
                 "type": "bar",
-                "x": {{ category_counts['Category'].tolist()|json_script:"bar-x" }},
-                "y": {{ category_counts['Count'].tolist()|json_script:"bar-y" }}
+                "x": {{ category_counts['Category'].tolist()|tojson }},
+                "y": {{ category_counts['Count'].tolist()|tojson }}
             }],
             "layout": {
                 "title": {"text": "Number of Incidents per Crime Category"},
@@ -70,8 +70,8 @@
         };
         Plotly.newPlot('graph', graphJSON.data, graphJSON.layout);
 
-        // Crime data (embedded JSON from Python, replace with your crime_data)
-        var crimeData = {{ crime_data|json_script:"crime-data" }};
+        // Crime data from Flask
+        var crimeData = {{ crime_data|tojson }};
 
         // Populate dropdown with crime categories
         var select = document.getElementById('crime-select');
@@ -82,7 +82,7 @@
             select.appendChild(option);
         });
 
-        // Initial map plot function
+        // Function to plot the map
         function plotMap(category) {
             var data = [{
                 type: 'scattermapbox',
@@ -110,7 +110,7 @@
         // Plot initial map with the first category
         plotMap(select.options[0].value);
 
-        // Update map on dropdown change
+        // Update map when dropdown changes
         select.addEventListener('change', function() {
             plotMap(this.value);
         });
