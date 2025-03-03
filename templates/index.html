@@ -22,15 +22,18 @@
             width: 100%;
             justify-content: space-between;
         }
-        #graph {
+        #graph, #map-graph {
             flex: 1;
-            margin-right: 20px;
-        }
-        iframe {
-            flex: 1;
+            margin: 0 10px;
             height: 600px;
-            width: 100%;
-            border: 1px solid #ddd;
+        }
+        #controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        select {
+            padding: 5px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -38,16 +41,79 @@
     <h1>San Francisco Crime Visualization</h1>
     
     <div class="container">
-        <!-- Plotly Graph -->
+        <!-- Plotly Graph (Left Panel: Bar Chart) -->
         <div id="graph"></div>
 
-        <!-- Embedded Jupyter Notebook as an iframe -->
-        <iframe src="{{ url_for('static', filename='sf_crime_analysis.html') }}" title="Jupyter Notebook Visualization"></iframe>
+        <!-- Right Panel: Dropdown and Map -->
+        <div>
+            <div id="controls">
+                <label for="crime-select">Select Crime Category: </label>
+                <select id="crime-select"></select>
+            </div>
+            <div id="map-graph"></div>
+        </div>
     </div>
 
     <script>
-        var graphData = JSON.parse('{{ graphJSON|safe }}');
-        Plotly.newPlot('graph', graphData.data, graphData.layout);
+        // Bar chart data (replace with your graphJSON from Python)
+        var graphJSON = {
+            "data": [{
+                "type": "bar",
+                "x": {{ category_counts['Category'].tolist()|json_script:"bar-x" }},
+                "y": {{ category_counts['Count'].tolist()|json_script:"bar-y" }}
+            }],
+            "layout": {
+                "title": {"text": "Number of Incidents per Crime Category"},
+                "xaxis": {"title": "Crime Category", "categoryorder": "total descending"},
+                "yaxis": {"title": "Number of Incidents"}
+            }
+        };
+        Plotly.newPlot('graph', graphJSON.data, graphJSON.layout);
+
+        // Crime data (embedded JSON from Python, replace with your crime_data)
+        var crimeData = {{ crime_data|json_script:"crime-data" }};
+
+        // Populate dropdown with crime categories
+        var select = document.getElementById('crime-select');
+        Object.keys(crimeData).forEach(function(category) {
+            var option = document.createElement('option');
+            option.value = category;
+            option.text = category;
+            select.appendChild(option);
+        });
+
+        // Initial map plot function
+        function plotMap(category) {
+            var data = [{
+                type: 'scattermapbox',
+                lon: crimeData[category].lon,
+                lat: crimeData[category].lat,
+                mode: 'markers',
+                marker: { size: 5, color: 'red' },
+                text: category,
+                name: category
+            }];
+
+            var layout = {
+                mapbox: {
+                    style: 'open-street-map',
+                    center: { lat: 37.7749, lon: -122.4194 }, // San Francisco coordinates
+                    zoom: 11
+                },
+                margin: { t: 0, b: 0, l: 0, r: 0 },
+                height: 600
+            };
+
+            Plotly.newPlot('map-graph', data, layout);
+        }
+
+        // Plot initial map with the first category
+        plotMap(select.options[0].value);
+
+        // Update map on dropdown change
+        select.addEventListener('change', function() {
+            plotMap(this.value);
+        });
     </script>
 </body>
 </html>
